@@ -11,6 +11,15 @@ const getProductById = catchAsync(async (req, res) => {
   res.send(product);
 });
 
+const searchProducts = catchAsync(async (req, res) => {
+  const { value } = req.query;
+  const product = await productService.searchProducts(value);
+  if (!product) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Product not found");
+  }
+  res.send(product);
+});
+
 const getProducts = catchAsync(async (req, res) => {
   const products = await productService.getProducts();
   res.send(products);
@@ -19,4 +28,5 @@ const getProducts = catchAsync(async (req, res) => {
 module.exports = {
   getProductById,
   getProducts,
+  searchProducts,
 };

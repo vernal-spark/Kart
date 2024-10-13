@@ -27,32 +27,30 @@ const Register = () => {
   const register = async (formData) => {
     if (!validateInput(formData)) return;
     setLoading(true);
-    const response = axios
-      .post(`${config.endpoint}/auth/register`, {
+    try {
+      const response = await axios.post(`${config.endpoint}/auth/register`, {
         username: formData.username,
         password: formData.password,
-      })
-      .then((response) => {
-        setLoading(false);
-        setformdata({
-          username: "",
-          password: "",
-          confirmPassword: "",
-        });
-        enqueueSnackbar("Registered Successfully", { variant: "success" });
-        history.push("/login");
-      })
-      .catch((e) => {
-        setLoading(false);
-        if (e.response && e.response.status === 400) {
-          enqueueSnackbar(e.response.data.message, { variant: "error" });
-        } else {
-          enqueueSnackbar(
-            "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
-            { variant: "error" }
-          );
-        }
       });
+      setformdata({
+        username: "",
+        password: "",
+        confirmPassword: "",
+      });
+      enqueueSnackbar("Registered Successfully", { variant: "success" });
+      history.push("/login");
+    } catch (e) {
+      if (e.response && e.response.status === 400) {
+        enqueueSnackbar(e.response.data.message, { variant: "error" });
+      } else {
+        enqueueSnackbar(
+          "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
+          { variant: "error" }
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const validateInput = (data) => {

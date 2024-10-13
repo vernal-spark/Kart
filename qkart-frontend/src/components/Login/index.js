@@ -2,21 +2,23 @@ import { Button, CircularProgress, Stack, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useHistory, Link } from "react-router-dom";
-import { config } from "../../App";
+import { AuthContext, config } from "../../App";
 import Footer from "../Footer";
 import Header from "../Header";
 import "./Login.css";
 
 const Login = () => {
-  const { enqueueSnackbar } = useSnackbar();
   const [formData, setformdata] = useState({
     username: "",
     password: "",
   });
   const [isLoading, setLoading] = useState(false);
   let history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
+  const { setToken } = useContext(AuthContext);
+
   const onInputChange = (e) => {
     const [key, value] = [e.target.name, e.target.value];
     setformdata((FormData) => ({ ...FormData, [key]: value }));
@@ -25,34 +27,35 @@ const Login = () => {
   const login = async (formData) => {
     if (!validateInput(formData)) return;
     setLoading(true);
-    const response = axios
-      .post(`${config.endpoint}/auth/login`, formData)
-      .then((response) => {
-        setLoading(false);
-        console.log(response);
-        persistLogin(
-          response.data.token,
-          response.data.username,
-          response.data.balance
-        );
-        setformdata({
-          username: "",
-          password: "",
-        });
-        enqueueSnackbar("Logged in Successfully", { variant: "success" });
-        history.push("/");
-      })
-      .catch((e) => {
-        setLoading(false);
-        if (e.response && e.response.status === 400) {
-          enqueueSnackbar(e.response.data.message, { variant: "error" });
-        } else {
-          enqueueSnackbar(
-            "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
-            { variant: "error" }
-          );
-        }
+    try {
+      const response = await axios.post(
+        `${config.endpoint}/auth/login`,
+        formData
+      );
+      persistLogin(
+        response.data.token,
+        response.data.username,
+        response.data.balance
+      );
+      setToken(response.data.token);
+      setformdata({
+        username: "",
+        password: "",
       });
+      enqueueSnackbar("Logged in Successfully", { variant: "success" });
+      history.push("/");
+    } catch (e) {
+      if (e.response && e.response.status === 400) {
+        enqueueSnackbar(e.response.data.message, { variant: "error" });
+      } else {
+        enqueueSnackbar(
+          "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
+          { variant: "error" }
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const validateInput = (data) => {

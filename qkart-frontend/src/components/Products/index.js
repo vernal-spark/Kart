@@ -3,8 +3,8 @@ import { Drawer, Grid, InputAdornment, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import React, { useEffect, useState } from "react";
-import { config } from "../../App";
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext, config } from "../../App";
 import Footer from "../Footer";
 import Header from "../Header";
 import "./Products.css";
@@ -12,6 +12,7 @@ import ProductCard from "../ProductCard";
 import Cart, { generateCartItemsFrom } from "../Cart";
 
 const Products = () => {
+  const { token, makeLogout } = useContext(AuthContext);
   const [items, setItems] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
   const [filteredProducts, setfilteredProducts] = useState([]);
@@ -19,7 +20,6 @@ const Products = () => {
   const [searchKey, setSearchKey] = useState("");
   const [debounceTimeout, setDebounceTimeout] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [token, setToken] = useState(localStorage.getItem("token"));
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [productLoading, setProductLoading] = useState(null);
 
@@ -98,6 +98,11 @@ const Products = () => {
       });
       return response.data;
     } catch (e) {
+      console.log(e.response.status);
+      if (e.response.status === 401) {
+        enqueueSnackbar("Session timed out", { variant: "error" });
+        makeLogout();
+      }
       if (e.response && e.response.status === 400) {
         enqueueSnackbar(e.response.data.message, { variant: "error" });
       } else {
@@ -164,8 +169,11 @@ const Products = () => {
         updateCartItems(response.data.cartItems, products);
       }
     } catch (e) {
-      console.log(e);
       enqueueSnackbar("Error adding to cart", { variant: "error" });
+      if (e.response.status === 401) {
+        enqueueSnackbar("Session timed out", { variant: "error" });
+        makeLogout();
+      }
     } finally {
       setProductLoading(null);
     }
@@ -174,7 +182,7 @@ const Products = () => {
   return (
     <div>
       <Header
-        setToken={setToken}
+        makeLogout={makeLogout}
         noOfItemsInCart={items.length ?? 0}
         setIsCartOpen={setIsCartOpen}
       >

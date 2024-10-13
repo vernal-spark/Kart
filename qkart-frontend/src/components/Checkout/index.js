@@ -10,20 +10,15 @@ import {
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory, Redirect } from "react-router-dom";
-import { config } from "../../App";
+import { AuthContext, config } from "../../App";
 import Cart, { getTotalCartValue, generateCartItemsFrom } from "../Cart";
 import Footer from "../Footer";
 import Header from "../Header";
 import "./Checkout.css";
 
-const AddNewAddressView = ({
-  token,
-  newAddress,
-  handleNewAddress,
-  addAddress,
-}) => {
+const AddNewAddressView = ({ newAddress, handleNewAddress, addAddress }) => {
   return (
     <Box display="flex" flexDirection="column">
       <TextField
@@ -42,7 +37,7 @@ const AddNewAddressView = ({
         <Button
           variant="contained"
           onClick={() => {
-            addAddress(token, newAddress);
+            addAddress(newAddress);
             handleNewAddress((currNewAddress) => ({
               value: "",
               isAddingNewAddress: false,
@@ -68,7 +63,7 @@ const AddNewAddressView = ({
 };
 
 const Checkout = () => {
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const { token, makeLogout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
   const [items, setItems] = useState([]);
   const [products, setProducts] = useState([]);
@@ -101,7 +96,7 @@ const Checkout = () => {
   };
 
   // Fetch cart data
-  const fetchCart = async (token) => {
+  const fetchCart = async () => {
     if (!token) return;
     try {
       const response = await axios.get(`${config.endpoint}/cart`, {
@@ -112,6 +107,10 @@ const Checkout = () => {
 
       return response.data;
     } catch (e) {
+      if (e.response.status === 401) {
+        enqueueSnackbar("Session timed out", { variant: "error" });
+        makeLogout();
+      }
       enqueueSnackbar(
         "Could not fetch cart details. Check that the backend is running, reachable and returns valid JSON.",
         {
@@ -122,7 +121,7 @@ const Checkout = () => {
     }
   };
 
-  const getAddresses = async (token) => {
+  const getAddresses = async () => {
     if (!token) return;
 
     try {
@@ -135,6 +134,10 @@ const Checkout = () => {
       setAddresses({ ...addresses, all: response.data });
       return response.data;
     } catch (e) {
+      if (e.response.status === 401) {
+        enqueueSnackbar("Session timed out", { variant: "error" });
+        makeLogout();
+      }
       enqueueSnackbar(
         "Could not fetch addresses. Check that the backend is running, reachable and returns valid JSON.",
         {
@@ -145,7 +148,7 @@ const Checkout = () => {
     }
   };
 
-  const addAddress = async (token, newAddress) => {
+  const addAddress = async (newAddress) => {
     return axios
       .post(
         `${config.endpoint}/users/address`,
@@ -157,6 +160,10 @@ const Checkout = () => {
         return response.data;
       })
       .catch((e) => {
+        if (e.response.status === 401) {
+          enqueueSnackbar("Session timed out", { variant: "error" });
+          makeLogout();
+        }
         if (e.response) {
           enqueueSnackbar(e.response.data.message, { variant: "error" });
         } else {
@@ -170,7 +177,7 @@ const Checkout = () => {
       });
   };
 
-  const deleteAddress = async (token, addressId) => {
+  const deleteAddress = async (addressId) => {
     try {
       return axios
         .delete(`${config.endpoint}/users/address/${addressId}`, {
@@ -184,6 +191,10 @@ const Checkout = () => {
           return response.data;
         });
     } catch (e) {
+      if (e.response.status === 401) {
+        enqueueSnackbar("Session timed out", { variant: "error" });
+        makeLogout();
+      }
       if (e.response) {
         enqueueSnackbar(e.response.data.message, { variant: "error" });
       } else {
@@ -220,7 +231,7 @@ const Checkout = () => {
     return true;
   };
 
-  const performCheckout = async (token, items, addresses) => {
+  const performCheckout = async (items, addresses) => {
     if (!validateRequest(items, addresses)) return;
     try {
       return axios
@@ -237,6 +248,10 @@ const Checkout = () => {
           return true;
         });
     } catch (e) {
+      if (e.response.status === 401) {
+        enqueueSnackbar("Session timed out", { variant: "error" });
+        makeLogout();
+      }
       if (e.response) {
         enqueueSnackbar(e.response.data.message, { variant: "error" });
       } else {
@@ -255,7 +270,7 @@ const Checkout = () => {
     const onLoadHandler = async () => {
       const productsData = await getProducts();
 
-      const cartData = await fetchCart(token);
+      const cartData = await fetchCart();
 
       if (productsData && cartData) {
         const cartDetails = await generateCartItemsFrom(
@@ -264,7 +279,7 @@ const Checkout = () => {
         );
         setItems(cartDetails);
       }
-      const addressData = await getAddresses(token);
+      await getAddresses();
     };
     onLoadHandler();
   }, []);
@@ -272,7 +287,7 @@ const Checkout = () => {
   if (token) {
     return (
       <>
-        <Header setToken={setToken} isCheckout={true} />
+        <Header makeLogout={makeLogout} isCheckout={true} />
         {token ? (
           <Grid container>
             <Grid item xs={12} md={8.5}>
@@ -305,7 +320,7 @@ const Checkout = () => {
                           startIcon={<Delete />}
                           onClick={(e) => {
                             e.stopPropagation();
-                            deleteAddress(token, ele._id);
+                            deleteAddress(ele._id);
                           }}
                         >
                           Delete
@@ -338,7 +353,6 @@ const Checkout = () => {
                 )}
                 {newAddress.isAddingNewAddress && (
                   <AddNewAddressView
-                    token={token}
                     newAddress={newAddress}
                     handleNewAddress={setNewAddress}
                     addAddress={addAddress}
@@ -361,7 +375,7 @@ const Checkout = () => {
                   startIcon={<CreditCard />}
                   variant="contained"
                   onClick={() => {
-                    performCheckout(token, items, addresses);
+                    performCheckout(items, addresses);
                   }}
                 >
                   PLACE ORDER

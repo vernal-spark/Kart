@@ -9,7 +9,7 @@ import { LogoutOutlined, ShoppingBag } from "@mui/icons-material";
 const Header = ({
   children,
   hasHiddenAuthButtons,
-  setToken,
+  makeLogout,
   noOfItemsInCart,
   setIsCartOpen,
   isCheckout,
@@ -66,13 +66,7 @@ const Header = ({
             )}
             <LogoutOutlined
               color="error"
-              onClick={() => {
-                localStorage.removeItem("username");
-                localStorage.removeItem("token");
-                localStorage.removeItem("balance");
-                setToken();
-                history.push("/");
-              }}
+              onClick={() => makeLogout()}
               style={{ cursor: "pointer" }}
             />
           </div>

@@ -6,6 +6,7 @@ const productController = require("../../controllers/product.controller");
 const router = express.Router();
 
 router.get("/", productController.getProducts);
+router.get("/search", productController.searchProducts);
 router.get(
   "/:productId",
   validate(productValidation.getProduct),

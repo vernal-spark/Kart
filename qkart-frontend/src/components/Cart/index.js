@@ -68,7 +68,6 @@ const ItemQuantity = ({ isReadOnly, value, handleAdd, handleDelete }) => {
 
 const Cart = ({ isReadOnly, items = [], handleQuantity }) => {
   let history = useHistory();
-  const token = localStorage.getItem("token");
   if (!items.length) {
     return (
       <Box fullWidth className="cart empty">

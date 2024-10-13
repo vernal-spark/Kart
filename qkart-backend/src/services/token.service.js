@@ -23,7 +23,6 @@ const generateAuthTokens = async (user) => {
 };
 
 const decodeToken = async (token) => {
-  console.log(token);
   const info = await jwt.decode(token);
   return info;
 };
