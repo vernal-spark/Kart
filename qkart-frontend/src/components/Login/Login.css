@@ -1,11 +1,10 @@
 .content {
-  background-image: url("../assets/hero_image.png");
+  background-image: url("../../assets/hero_image.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   display: flex;
   justify-content: flex-end;
-  align-items: center;
   height: 70vh;
 }
 
@@ -29,7 +28,6 @@
 .link {
   font-weight: 700;
   text-decoration: none;
-  color: #45c09f;
 }
 
 .link:focus {
@@ -45,14 +43,17 @@
 }
 
 .button {
-    background-color: #00a278 !important;
+  background-color: #00a278 !important;
 }
 
 .button:hover {
-    background-color: #00845c !important;
+  background-color: #00845c !important;
 }
 
 @media screen and (min-width: 768px) {
+  .content {
+    justify-content: flex-end;
+  }
   .form {
     min-width: 24rem;
   }

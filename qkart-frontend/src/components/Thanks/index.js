@@ -2,11 +2,11 @@ import { Button } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import Footer from "./Footer";
-import Header from "./Header";
+import Footer from "../Footer";
+import Header from "../Header";
 import "./Thanks.css";
 import axios from "axios";
-import { config } from "../App";
+import { config } from "../../App";
 import { useSnackbar } from "notistack";
 
 const Thanks = () => {
@@ -42,7 +42,6 @@ const Thanks = () => {
     }
   };
   useEffect(() => {
-    console.log(localStorage.getItem("token"));
     emptyCart(localStorage.getItem("token"));
   }, []);
   useEffect(() => {

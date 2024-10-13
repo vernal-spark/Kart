@@ -10,6 +10,38 @@ import React from "react";
 import { withRouter, useHistory } from "react-router-dom";
 import "./Cart.css";
 
+export const generateCartItemsFrom = (cartData, productsData) => {
+  let map = new Map();
+  for (let i = 0; i < productsData.length; i++) {
+    map.set(productsData[i]["_id"], productsData[i]);
+  }
+  let cartItems = [];
+
+  cartData.forEach((x) => {
+    let value = map.get(x["productId"]);
+    value["quantity"] = x.quantity;
+    cartItems.push(value);
+  });
+
+  return cartItems;
+};
+
+export const getTotalCartValue = (items = []) => {
+  let value = 0;
+  for (let i = 0; i < items.length; i++) {
+    value += items[i].quantity * items[i].cost;
+  }
+  return value;
+};
+
+export const getTotalItems = (items = []) => {
+  let qty = 0;
+  for (let i = 0; i < items.length; i++) {
+    qty += items[i].quantity;
+  }
+  return qty;
+};
+
 const ItemQuantity = ({ isReadOnly, value, handleAdd, handleDelete }) => {
   return (
     <Stack direction="row" alignItems="center">
@@ -27,14 +59,14 @@ const ItemQuantity = ({ isReadOnly, value, handleAdd, handleDelete }) => {
         </>
       ) : (
         <Box padding="0.5rem" data-testid="item-qty">
-          Qty:{value}
+          Qty: {value}
         </Box>
       )}
     </Stack>
   );
 };
 
-const Cart = ({ isReadOnly, products, items = [], handleQuantity }) => {
+const Cart = ({ isReadOnly, items = [], handleQuantity }) => {
   let history = useHistory();
   const token = localStorage.getItem("token");
   if (!items.length) {
@@ -47,7 +79,6 @@ const Cart = ({ isReadOnly, products, items = [], handleQuantity }) => {
       </Box>
     );
   }
-
   return (
     <>
       <Box className="cart">
@@ -76,25 +107,13 @@ const Cart = ({ isReadOnly, products, items = [], handleQuantity }) => {
               >
                 <ItemQuantity
                   isReadOnly={isReadOnly}
-                  handleAdd={async () => {
-                    handleQuantity(
-                      token,
-                      items,
-                      products,
-                      ele.productId,
-                      ele.qty + 1
-                    );
+                  handleAdd={() => {
+                    handleQuantity(ele._id, ele.quantity + 1);
                   }}
-                  handleDelete={async () => {
-                    handleQuantity(
-                      token,
-                      items,
-                      products,
-                      ele.productId,
-                      ele.qty - 1
-                    );
+                  handleDelete={() => {
+                    handleQuantity(ele._id, ele.quantity - 1);
                   }}
-                  value={ele.qty}
+                  value={ele.quantity}
                 />
                 <Box padding="0.5rem" fontWeight="700">
                   ${ele.cost}
@@ -109,8 +128,13 @@ const Cart = ({ isReadOnly, products, items = [], handleQuantity }) => {
           justifyContent="space-between"
           alignItems="center"
         >
-          <Box color="#3C3C3C" alignSelf="center">
-            Order total
+          <Box
+            color="#3C3C3C"
+            fontWeight="600"
+            fontSize="1rem"
+            alignSelf="center"
+          >
+            Order total:
           </Box>
           <Box
             color="#3C3C3C"

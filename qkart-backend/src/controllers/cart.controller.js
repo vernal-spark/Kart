@@ -2,12 +2,10 @@ const httpStatus = require("http-status");
 const catchAsync = require("../utils/catchAsync");
 const { cartService } = require("../services");
 
-
 const getCart = catchAsync(async (req, res) => {
   const cart = await cartService.getCartByUser(req.user);
   res.send(cart);
 });
-
 
 const addProductToCart = catchAsync(async (req, res) => {
   const cart = await cartService.addProductToCart(
@@ -34,17 +32,12 @@ const updateProductInCart = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send(cart);
 });
 
-
-
-
 /**
  * Checkout user's cart
  */
 const checkout = catchAsync(async (req, res) => {
-   await cartService.checkout(req.user);
-  return (
-    res.status(httpStatus.NO_CONTENT).send()
-  );
+  await cartService.checkout(req.user);
+  return res.status(httpStatus.NO_CONTENT).send();
 });
 
 module.exports = {

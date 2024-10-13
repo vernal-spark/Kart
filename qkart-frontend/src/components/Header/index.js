@@ -1,18 +1,19 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Avatar, Box, Button, Stack } from "@mui/material";
+import { Avatar, Badge, Box, Button, Stack } from "@mui/material";
 import React from "react";
-import {
-  useHistory,
-  useState,
-  useEffect,
-  withRouter,
-  useSnackbar,
-} from "react-router-dom";
+import { useHistory, withRouter } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { createTheme } from "@mui/material/styles";
 import "./Header.css";
+import { LogoutOutlined, ShoppingBag } from "@mui/icons-material";
 
-const Header = ({ children, hasHiddenAuthButtons, setToken }) => {
+const Header = ({
+  children,
+  hasHiddenAuthButtons,
+  setToken,
+  noOfItemsInCart,
+  setIsCartOpen,
+  isCheckout,
+}) => {
   let history = useHistory();
 
   if (hasHiddenAuthButtons) {
@@ -20,7 +21,7 @@ const Header = ({ children, hasHiddenAuthButtons, setToken }) => {
       <Box className="header">
         <Box className="header-title">
           <Link to="/">
-            <img src="logo_light.svg" alt="QKart-icon"></img>
+            <img src="logo_light.svg" alt="QKart-icon" />
           </Link>
         </Box>
         {children}
@@ -47,13 +48,24 @@ const Header = ({ children, hasHiddenAuthButtons, setToken }) => {
       {children}
       <Stack direction="row" spacing={1} align-item="center">
         {localStorage.getItem("username") ? (
-          <>
-            <Avatar
-              src="avatar.png"
-              alt={localStorage.getItem("username") || "profile"}
-            />
-            <p className="username-text">{localStorage.getItem("username")}</p>
-            <Button
+          <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: "#00a278" }}>
+              {localStorage.getItem("username")[0].toUpperCase()}
+            </Avatar>
+            {!isCheckout && (
+              <Badge
+                badgeContent={noOfItemsInCart}
+                color="primary"
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  setIsCartOpen(true);
+                }}
+              >
+                <ShoppingBag color="black" />
+              </Badge>
+            )}
+            <LogoutOutlined
+              color="error"
               onClick={() => {
                 localStorage.removeItem("username");
                 localStorage.removeItem("token");
@@ -61,10 +73,9 @@ const Header = ({ children, hasHiddenAuthButtons, setToken }) => {
                 setToken();
                 history.push("/");
               }}
-            >
-              Logout
-            </Button>
-          </>
+              style={{ cursor: "pointer" }}
+            />
+          </div>
         ) : (
           <>
             <Button

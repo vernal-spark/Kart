@@ -12,11 +12,11 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import { useHistory, Redirect } from "react-router-dom";
-import { config } from "../App";
-import Cart, { getTotalCartValue, generateCartItemsFrom } from "./Cart";
+import { config } from "../../App";
+import Cart, { getTotalCartValue, generateCartItemsFrom } from "../Cart";
+import Footer from "../Footer";
+import Header from "../Header";
 import "./Checkout.css";
-import Footer from "./Footer";
-import Header from "./Header";
 
 const AddNewAddressView = ({
   token,
@@ -44,7 +44,7 @@ const AddNewAddressView = ({
           onClick={() => {
             addAddress(token, newAddress);
             handleNewAddress((currNewAddress) => ({
-              ...currNewAddress,
+              value: "",
               isAddingNewAddress: false,
             }));
           }}
@@ -69,7 +69,6 @@ const AddNewAddressView = ({
 
 const Checkout = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
-  const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
   const [items, setItems] = useState([]);
   const [products, setProducts] = useState([]);
@@ -127,7 +126,7 @@ const Checkout = () => {
     if (!token) return;
 
     try {
-      const response = await axios.get(`${config.endpoint}/user/addresses`, {
+      const response = await axios.get(`${config.endpoint}/users/address`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -149,13 +148,12 @@ const Checkout = () => {
   const addAddress = async (token, newAddress) => {
     return axios
       .post(
-        `${config.endpoint}/user/addresses`,
+        `${config.endpoint}/users/address`,
         { address: newAddress.value },
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((response) => {
-        setAddresses({ ...addresses, all: response.data });
-        console.log(response.data);
+        setAddresses({ ...addresses, all: response.data.address });
         return response.data;
       })
       .catch((e) => {
@@ -175,11 +173,14 @@ const Checkout = () => {
   const deleteAddress = async (token, addressId) => {
     try {
       return axios
-        .delete(`${config.endpoint}/user/addresses/${addressId}`, {
+        .delete(`${config.endpoint}/users/address/${addressId}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
-          setAddresses({ ...addresses, all: response.data });
+          setAddresses({ ...addresses, all: response.data.address });
+          enqueueSnackbar("Address deleted Successfully", {
+            variant: "success",
+          });
           return response.data;
         });
     } catch (e) {
@@ -229,9 +230,6 @@ const Checkout = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         )
         .then((response) => {
-          // enqueueSnackbar("Ordered palced successfully", {
-          //   variant: "success",
-          // });
           const newBalance =
             localStorage.getItem("balance") - getTotalCartValue(items);
           localStorage.setItem("balance", newBalance);
@@ -260,22 +258,24 @@ const Checkout = () => {
       const cartData = await fetchCart(token);
 
       if (productsData && cartData) {
-        const cartDetails = await generateCartItemsFrom(cartData, productsData);
+        const cartDetails = await generateCartItemsFrom(
+          cartData.cartItems,
+          productsData
+        );
         setItems(cartDetails);
       }
       const addressData = await getAddresses(token);
     };
     onLoadHandler();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (token) {
     return (
       <>
-        <Header setToken={setToken} />
+        <Header setToken={setToken} isCheckout={true} />
         {token ? (
           <Grid container>
-            <Grid item xs={12} md={9}>
+            <Grid item xs={12} md={8.5}>
               <Box className="shipping-container" minHeight="100vh">
                 <Typography color="#3C3C3C" variant="h4" my="1rem">
                   Shipping
@@ -303,8 +303,9 @@ const Checkout = () => {
                         <Typography>{ele.address}</Typography>
                         <Button
                           startIcon={<Delete />}
-                          onClick={async () => {
-                            await deleteAddress(token, ele._id);
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteAddress(token, ele._id);
                           }}
                         >
                           Delete
@@ -367,7 +368,7 @@ const Checkout = () => {
                 </Button>
               </Box>
             </Grid>
-            <Grid item xs={12} md={3} bgcolor="#E9F5E1">
+            <Grid item xs={12} md={3.5} bgcolor="#E9F5E1">
               <Cart isReadOnly products={products} items={items} />
             </Grid>
           </Grid>

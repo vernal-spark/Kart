@@ -4,9 +4,9 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useState } from "react";
 import { useHistory, Link } from "react-router-dom";
-import { config } from "../App";
-import Footer from "./Footer";
-import Header from "./Header";
+import { config } from "../../App";
+import Footer from "../Footer";
+import Header from "../Header";
 import "./Register.css";
 
 const Register = () => {
@@ -43,6 +43,7 @@ const Register = () => {
         history.push("/login");
       })
       .catch((e) => {
+        setLoading(false);
         if (e.response && e.response.status === 400) {
           enqueueSnackbar(e.response.data.message, { variant: "error" });
         } else {

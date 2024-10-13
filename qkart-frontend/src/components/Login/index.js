@@ -4,9 +4,9 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useState } from "react";
 import { useHistory, Link } from "react-router-dom";
-import { config } from "../App";
-import Footer from "./Footer";
-import Header from "./Header";
+import { config } from "../../App";
+import Footer from "../Footer";
+import Header from "../Header";
 import "./Login.css";
 
 const Login = () => {
@@ -29,6 +29,7 @@ const Login = () => {
       .post(`${config.endpoint}/auth/login`, formData)
       .then((response) => {
         setLoading(false);
+        console.log(response);
         persistLogin(
           response.data.token,
           response.data.username,

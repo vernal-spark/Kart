@@ -37,7 +37,7 @@ const productSchema = mongoose.Schema(
 /**
  * @typedef Product
  */
-const Product = mongoose.model("Product", productSchema);
+const Product = mongoose.model("products", productSchema);
 
 module.exports.Product = Product;
 module.exports.productSchema = productSchema;

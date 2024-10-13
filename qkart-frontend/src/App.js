@@ -1,12 +1,11 @@
 import Register from "./components/Register";
-import ipConfig from "./ipConfig.json";
 import { Route, Switch } from "react-router-dom";
 import Login from "./components/Login";
 import Products from "./components/Products";
 import Checkout from "./components/Checkout";
 import Thanks from "./components/Thanks";
 export const config = {
-  endpoint: "https://qkart-frontend-uc05.onrender.com/api/v1",
+  endpoint: "http://localhost:8080/v1",
 };
 
 function App() {

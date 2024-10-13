@@ -3,7 +3,6 @@ const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const { productService } = require("../services");
 
-
 const getProductById = catchAsync(async (req, res) => {
   const product = await productService.getProductById(req.params.productId);
   if (!product) {

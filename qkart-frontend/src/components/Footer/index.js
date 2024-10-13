@@ -9,8 +9,8 @@ const Footer = () => {
         <img src="logo_dark.svg" alt="QKart-icon"></img>
       </Box>
       <p className="footer-text">
-        QKart is your one stop solution to the buy the latest trending items
-        with India's Fastest Delivery to your doorstep
+        Sneaker is your one stop solution to the buy the latest trending
+        sneakers with India's Fastest Delivery to your doorstep
       </p>
     </Box>
   );

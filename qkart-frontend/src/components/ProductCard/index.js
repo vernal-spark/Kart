@@ -5,13 +5,15 @@ import {
   CardActions,
   CardContent,
   CardMedia,
+  CircularProgress,
+  LinearProgress,
   Rating,
   Typography,
 } from "@mui/material";
 import React from "react";
 import "./ProductCard.css";
 
-const ProductCard = ({ product, handleAddToCart }) => {
+const ProductCard = ({ product, handleAddToCart, disableAddToCart }) => {
   return (
     <Card className="card">
       <CardMedia component="img" image={product.image} />
@@ -25,15 +27,21 @@ const ProductCard = ({ product, handleAddToCart }) => {
         <Rating name="read-only" value={product.rating} readOnly />
       </CardContent>
       <CardActions className="card-actions">
-        <Button
-          variant="contained"
-          className="card-button"
-          startIcon={<AddShoppingCartOutlined />}
-          onClick={handleAddToCart}
-          fullWidth
-        >
-          Add To Cart
-        </Button>
+        {disableAddToCart ? (
+          <Button variant="contained" fullWidth>
+            <CircularProgress size={24} sx={{ color: "#fff" }} />
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            className="card-button"
+            startIcon={<AddShoppingCartOutlined />}
+            onClick={handleAddToCart}
+            fullWidth
+          >
+            Add To Cart
+          </Button>
+        )}
       </CardActions>
     </Card>
   );

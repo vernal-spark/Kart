@@ -1,34 +1,33 @@
-const mongoose = require('mongoose');
-const { productSchema } = require('./product.model');
-const config = require("../config/config")
+const mongoose = require("mongoose");
+const { productSchema } = require("./product.model");
+const config = require("../config/config");
 
 const cartSchema = mongoose.Schema(
   {
-    email:{
-      type:String,
-      required:true,
-      unique:true
+    username: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    cartItems:[
+    cartItems: [
       {
-        product:productSchema,
-        quantity:Number
-      }
+        productId: String,
+        quantity: Number,
+      },
     ],
-    paymentOption:{
-      type:String,
-      default:"PAYMENT_OPTION_DEFAULT"
-    }
+    paymentOption: {
+      type: String,
+      default: "PAYMENT_OPTION_DEFAULT",
+    },
   },
   {
     timestamps: false,
   }
 );
 
-
 /**
  * @typedef Cart
  */
-const Cart = mongoose.model('Cart', cartSchema);
+const Cart = mongoose.model("Cart", cartSchema);
 
 module.exports.Cart = Cart;
