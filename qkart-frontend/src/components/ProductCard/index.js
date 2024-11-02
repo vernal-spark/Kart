@@ -16,33 +16,46 @@ import "./ProductCard.css";
 const ProductCard = ({ product, handleAddToCart, disableAddToCart }) => {
   return (
     <Card className="card">
-      <CardMedia component="img" image={product.image} />
-      <CardContent>
-        <Typography variant="body2" color="text.secondary">
-          {product.name}
-        </Typography>
-        <Typography gutterBottom variant="h5" component="div">
-          ${product.cost}
-        </Typography>
-        <Rating name="read-only" value={product.rating} readOnly />
-      </CardContent>
-      <CardActions className="card-actions">
-        {disableAddToCart ? (
-          <Button variant="contained" fullWidth>
-            <CircularProgress size={24} sx={{ color: "#fff" }} />
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            className="card-button"
-            startIcon={<AddShoppingCartOutlined />}
-            onClick={handleAddToCart}
-            fullWidth
+      <CardMedia component="img" image={product.image} className="card-img" />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
+        <CardContent>
+          <Typography
+            variant="subtitle2"
+            color="text.secondary"
+            fontWeight={600}
+            fontSize={"14px"}
           >
-            Add To Cart
-          </Button>
-        )}
-      </CardActions>
+            {product.category}
+          </Typography>
+          <Typography
+            variant="body1"
+            color="text.primary"
+            fontWeight={600}
+            fontSize={"16px"}
+          >
+            {product.name}
+          </Typography>
+          <Typography fontWeight={500}>₹{product.cost}</Typography>
+        </CardContent>
+        <CardActions className="card-actions">
+          {disableAddToCart ? (
+            <CircularProgress size={24} />
+          ) : (
+            <Button color="primary">
+              <AddShoppingCartOutlined
+                onClick={handleAddToCart}
+                className="card-button"
+              />
+            </Button>
+          )}
+        </CardActions>
+      </div>
     </Card>
   );
 };

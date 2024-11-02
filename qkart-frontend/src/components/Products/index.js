@@ -3,7 +3,7 @@ import { Drawer, Grid, InputAdornment, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { AuthContext, config } from "../../App";
 import Footer from "../Footer";
 import Header from "../Header";
@@ -22,6 +22,7 @@ const Products = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [productLoading, setProductLoading] = useState(null);
+  const isFirstMountRef = useRef(true);
 
   const handleInputChange = (e) => {
     setSearchKey(e.target.value);
@@ -87,7 +88,9 @@ const Products = () => {
   };
 
   useEffect(() => {
-    debounceSearch(debounceTimeout);
+    if (!isFirstMountRef.current) {
+      debounceSearch(debounceTimeout);
+    }
   }, [searchKey]);
 
   const fetchCart = async () => {
@@ -129,6 +132,7 @@ const Products = () => {
         );
         setItems(cartDetails);
       }
+      isFirstMountRef.current = false;
     })();
   }, []);
 
@@ -252,11 +256,15 @@ const Products = () => {
                       <Grid
                         item
                         mb={2}
-                        lg={3}
+                        lg={4}
                         sm={6}
                         md={4}
                         key={ele._id}
-                        sx={{ width: "100%", minWidth: "300px" }}
+                        sx={{
+                          width: "100%",
+                          minWidth: "300px",
+                          height: "100%",
+                        }}
                       >
                         <ProductCard
                           product={ele}
